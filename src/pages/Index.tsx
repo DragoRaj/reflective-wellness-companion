@@ -120,8 +120,8 @@ const Index = () => {
     summary: string;
   }>(null);
   
-  const GEMINI_API_KEY = "AIzaSyDcexI82yfpNpFNL6f6P6RM6YQCTdhb6Ow";
-  const GEMINI_API_ENDPOINT = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent";
+  const GEMINI_API_KEY = "AIzaSyDJDWd17Om9K0NFx8jNcoRoIwQ1NRWYLEo";
+  const GEMINI_API_ENDPOINT = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent";
   
   const handleRantSubmit = async () => {
     if (!rantText.trim()) return;
