@@ -1,9 +1,9 @@
 
 import { ReactNode } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { 
   MessageCircle, HeartPulse, BookText, Shield, 
-  Github, Settings, Menu, Moon, Sun
+  Settings, Menu, Moon, Sun
 } from "lucide-react";
 import { 
   DropdownMenu, 
@@ -20,10 +20,15 @@ interface MainLayoutProps {
 
 const MainLayout = ({ children }: MainLayoutProps) => {
   const { theme, setTheme } = useTheme();
+  const navigate = useNavigate();
+  
+  const handleNavigate = (path: string) => {
+    navigate(path);
+  };
 
   return (
-    <div className="flex min-h-screen flex-col bg-background">
-      <header className="sticky top-0 z-40 w-full border-b border-border/40 bg-background/80 backdrop-blur-md">
+    <div className="flex min-h-screen flex-col bg-background transition-colors duration-300">
+      <header className="sticky top-0 z-40 w-full border-b border-border/40 bg-background/80 backdrop-blur-md transition-colors duration-300">
         <div className="flex h-16 items-center justify-between px-4 md:px-6">
           <div className="flex items-center gap-2">
             <DropdownMenu>
@@ -62,7 +67,7 @@ const MainLayout = ({ children }: MainLayoutProps) => {
 
             <Link to="/" className="flex items-center gap-2">
               <div className="relative h-8 w-8 overflow-hidden rounded-full bg-gradient-to-br from-reflectify-blue via-reflectify-purple to-reflectify-green">
-                <div className="absolute inset-0.5 rounded-full bg-white flex items-center justify-center">
+                <div className="absolute inset-0.5 rounded-full bg-white dark:bg-card flex items-center justify-center transition-colors duration-300">
                   <span className="text-transparent bg-clip-text bg-gradient-to-br from-reflectify-blue via-reflectify-purple to-reflectify-green font-bold">R</span>
                 </div>
               </div>
@@ -93,42 +98,44 @@ const MainLayout = ({ children }: MainLayoutProps) => {
             <Button 
               variant="ghost" 
               size="icon" 
-              className="rounded-full"
+              className="rounded-full transition-transform hover:scale-110 duration-300"
               onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
             >
               {theme === "dark" ? (
-                <Sun className="h-5 w-5" />
+                <Sun className="h-5 w-5 transition-all duration-300" />
               ) : (
-                <Moon className="h-5 w-5" />
+                <Moon className="h-5 w-5 transition-all duration-300" />
               )}
             </Button>
-            <Button variant="ghost" size="icon" className="rounded-full">
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              className="rounded-full transition-transform hover:scale-110 duration-300"
+              onClick={() => handleNavigate('/settings')}
+            >
               <Settings className="h-5 w-5" />
-            </Button>
-            <Button variant="ghost" size="icon" className="rounded-full hidden md:flex">
-              <Github className="h-5 w-5" />
             </Button>
           </div>
         </div>
       </header>
 
-      <main className="flex-1">
+      <main className="flex-1 transition-colors duration-300">
         {children}
       </main>
 
-      <footer className="border-t border-border/40 py-6 px-4 md:px-6">
+      <footer className="border-t border-border/40 py-6 px-4 md:px-6 transition-colors duration-300">
         <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-4 md:flex-row">
           <p className="text-center text-sm text-muted-foreground md:text-left">
             &copy; {new Date().getFullYear()} Reflectify. All rights reserved.
           </p>
           <div className="flex items-center gap-4">
-            <Link to="/" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+            <Link to="/terms" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
               Terms
             </Link>
-            <Link to="/" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+            <Link to="/privacy" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
               Privacy
             </Link>
-            <Link to="/" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+            <Link to="/about" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
               About
             </Link>
           </div>
