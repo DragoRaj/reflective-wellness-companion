@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import MainLayout from "@/components/layout/MainLayout";
 import { cn } from "@/lib/utils";
 import { 
@@ -41,6 +41,8 @@ type Mood = "happy" | "neutral" | "sad" | null;
 
 const Index = () => {
   const location = useLocation();
+  const navigate = useNavigate();
+
   const [activeTab, setActiveTab] = useState<FeatureTab>(() => {
     const params = new URLSearchParams(location.search);
     const tabParam = params.get('tab');
@@ -51,6 +53,14 @@ const Index = () => {
   const chatSectionRef = useRef<HTMLDivElement>(null);
   const journalSectionRef = useRef<HTMLDivElement>(null);
   const analyzeSectionRef = useRef<HTMLDivElement>(null);
+
+  const handleTabChange = (tab: FeatureTab) => {
+    setActiveTab(tab);
+    
+    const url = new URL(window.location.href);
+    url.searchParams.set('tab', tab);
+    navigate(`/?tab=${tab}`, { replace: true });
+  };
 
   useEffect(() => {
     const params = new URLSearchParams(location.search);
@@ -929,85 +939,89 @@ const Index = () => {
           <div className="max-w-5xl mx-auto">
             <div className="bg-white dark:bg-card rounded-3xl p-2 shadow-xl border border-border/40 mb-10 overflow-hidden transition-colors duration-500">
               <div className="grid grid-cols-2 md:grid-cols-4 gap-1">
-                <button
-                  onClick={() => handleTabChange("rant")}
-                  className={cn(
-                    "tab-button",
-                    activeTab === "rant" ? "active after:bg-reflectify-blue" : ""
-                  )}
-                  ref={rantSectionRef}
-                >
-                  <MessageCircle className={cn(
-                    "tab-icon",
-                    activeTab === "rant" ? "text-reflectify-blue" : "text-muted-foreground"
-                  )} />
-                  <span className={cn(
-                    "font-medium",
-                    activeTab === "rant" ? "text-foreground" : "text-muted-foreground"
-                  )}>
-                    Express
-                  </span>
-                </button>
+                <div ref={rantSectionRef}>
+                  <button
+                    onClick={() => handleTabChange("rant")}
+                    className={cn(
+                      "tab-button",
+                      activeTab === "rant" ? "active after:bg-reflectify-blue" : ""
+                    )}
+                  >
+                    <MessageCircle className={cn(
+                      "tab-icon",
+                      activeTab === "rant" ? "text-reflectify-blue" : "text-muted-foreground"
+                    )} />
+                    <span className={cn(
+                      "font-medium",
+                      activeTab === "rant" ? "text-foreground" : "text-muted-foreground"
+                    )}>
+                      Express
+                    </span>
+                  </button>
+                </div>
                 
-                <button
-                  onClick={() => handleTabChange("chat")}
-                  className={cn(
-                    "tab-button",
-                    activeTab === "chat" ? "active after:bg-reflectify-purple" : ""
-                  )}
-                  ref={chatSectionRef}
-                >
-                  <HeartPulse className={cn(
-                    "tab-icon",
-                    activeTab === "chat" ? "text-reflectify-purple" : "text-muted-foreground"
-                  )} />
-                  <span className={cn(
-                    "font-medium",
-                    activeTab === "chat" ? "text-foreground" : "text-muted-foreground"
-                  )}>
-                    Chat
-                  </span>
-                </button>
+                <div ref={chatSectionRef}>
+                  <button
+                    onClick={() => handleTabChange("chat")}
+                    className={cn(
+                      "tab-button",
+                      activeTab === "chat" ? "active after:bg-reflectify-purple" : ""
+                    )}
+                  >
+                    <HeartPulse className={cn(
+                      "tab-icon",
+                      activeTab === "chat" ? "text-reflectify-purple" : "text-muted-foreground"
+                    )} />
+                    <span className={cn(
+                      "font-medium",
+                      activeTab === "chat" ? "text-foreground" : "text-muted-foreground"
+                    )}>
+                      Chat
+                    </span>
+                  </button>
+                </div>
                 
-                <button
-                  onClick={() => handleTabChange("journal")}
-                  className={cn(
-                    "tab-button",
-                    activeTab === "journal" ? "active after:bg-reflectify-green" : ""
-                  )}
-                  ref={journalSectionRef}
-                >
-                  <BookText className={cn(
-                    "tab-icon",
-                    activeTab === "journal" ? "text-reflectify-green" : "text-muted-foreground"
-                  )} />
-                  <span className={cn(
-                    "font-medium",
-                    activeTab === "journal" ? "text-foreground" : "text-muted-foreground"
-                  )}>
-                    Journal
-                  </span>
-                </button>
+                <div ref={journalSectionRef}>
+                  <button
+                    onClick={() => handleTabChange("journal")}
+                    className={cn(
+                      "tab-button",
+                      activeTab === "journal" ? "active after:bg-reflectify-green" : ""
+                    )}
+                  >
+                    <BookText className={cn(
+                      "tab-icon",
+                      activeTab === "journal" ? "text-reflectify-green" : "text-muted-foreground"
+                    )} />
+                    <span className={cn(
+                      "font-medium",
+                      activeTab === "journal" ? "text-foreground" : "text-muted-foreground"
+                    )}>
+                      Journal
+                    </span>
+                  </button>
+                </div>
                 
-                <button
-                  onClick={() => handleTabChange("content")}
-                  className={cn(
-                    "tab-button",
-                    activeTab === "content" ? "active after:bg-reflectify-peach" : ""
-                  )}
-                  ref={analyzeSectionRef}
-                >
-                  <Shield className={cn(
-                    "tab-icon",
-                    activeTab === "content" ? "text-reflectify-peach" : "text-muted-foreground"
-                  )} />
-                  <span className={cn(
-                    "font-medium",
-                    activeTab === "content" ? "text-foreground" : "text-muted-foreground"
-                  )}>
-                    Analyze
-                  </span>
-                </button>
+                <div ref={analyzeSectionRef}>
+                  <button
+                    onClick={() => handleTabChange("content")}
+                    className={cn(
+                      "tab-button",
+                      activeTab === "content" ? "active after:bg-reflectify-peach" : ""
+                    )}
+                  >
+                    <Shield className={cn(
+                      "tab-icon",
+                      activeTab === "content" ? "text-reflectify-peach" : "text-muted-foreground"
+                    )} />
+                    <span className={cn(
+                      "font-medium",
+                      activeTab === "content" ? "text-foreground" : "text-muted-foreground"
+                    )}>
+                      Analyze
+                    </span>
+                  </button>
+                </div>
               </div>
             </div>
             
