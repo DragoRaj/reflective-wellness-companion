@@ -35,7 +35,7 @@ export function ThemeProvider({
     const root = window.document.documentElement;
     
     // Add a transition class before changing themes for smooth transition
-    root.classList.add("transition-colors", "duration-300");
+    root.classList.add("transition-colors", "duration-500");
     
     root.classList.remove("light", "dark");
 
@@ -44,11 +44,19 @@ export function ThemeProvider({
         .matches
         ? "dark"
         : "light";
-      root.classList.add(systemTheme);
+      
+      // Apply the theme with a slight delay for smoother transition
+      setTimeout(() => {
+        root.classList.add(systemTheme);
+      }, 50);
+      
       return;
     }
 
-    root.classList.add(theme);
+    // Apply the theme with a slight delay for smoother transition
+    setTimeout(() => {
+      root.classList.add(theme);
+    }, 50);
   }, [theme]);
 
   const value = {

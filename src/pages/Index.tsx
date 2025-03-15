@@ -1,5 +1,5 @@
-
 import { useState, useRef, useEffect } from "react";
+import { useLocation } from "react-router-dom";
 import MainLayout from "@/components/layout/MainLayout";
 import { cn } from "@/lib/utils";
 import { 
@@ -40,20 +40,65 @@ type FeatureTab = "rant" | "chat" | "journal" | "content";
 type Mood = "happy" | "neutral" | "sad" | null;
 
 const Index = () => {
-  const [activeTab, setActiveTab] = useState<FeatureTab>("rant");
+  const location = useLocation();
+  const [activeTab, setActiveTab] = useState<FeatureTab>(() => {
+    const params = new URLSearchParams(location.search);
+    const tabParam = params.get('tab');
+    return (tabParam as FeatureTab) || "rant";
+  });
   
-  // Rant Mode State
+  const rantSectionRef = useRef<HTMLDivElement>(null);
+  const chatSectionRef = useRef<HTMLDivElement>(null);
+  const journalSectionRef = useRef<HTMLDivElement>(null);
+  const analyzeSectionRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const tabParam = params.get('tab');
+    if (tabParam && (tabParam === "rant" || tabParam === "chat" || tabParam === "journal" || tabParam === "content")) {
+      setActiveTab(tabParam as FeatureTab);
+    }
+  }, [location.search]);
+
+  useEffect(() => {
+    const scrollToSection = () => {
+      let sectionRef;
+      switch (activeTab) {
+        case "rant":
+          sectionRef = rantSectionRef;
+          break;
+        case "chat":
+          sectionRef = chatSectionRef;
+          break;
+        case "journal":
+          sectionRef = journalSectionRef;
+          break;
+        case "content":
+          sectionRef = analyzeSectionRef;
+          break;
+      }
+
+      if (sectionRef && sectionRef.current) {
+        sectionRef.current.scrollIntoView({ 
+          behavior: 'smooth',
+          block: 'start'
+        });
+      }
+    };
+
+    const timeoutId = setTimeout(scrollToSection, 100);
+    return () => clearTimeout(timeoutId);
+  }, [activeTab]);
+  
   const [rantText, setRantText] = useState("");
   const [response, setResponse] = useState<string | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
   
-  // Wellbeing Chat State
   const [mood, setMood] = useState<Mood>(null);
   const [chatInput, setChatInput] = useState("");
   const [messages, setMessages] = useState<{role: "user" | "ai"; content: string}[]>([]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   
-  // Content Analysis State
   const [content, setContent] = useState("");
   const [analysis, setAnalysis] = useState<null | {
     toxicity: number;
@@ -65,18 +110,9 @@ const Index = () => {
     summary: string;
   }>(null);
   
-  // API key and endpoint configuration
   const GEMINI_API_KEY = "AIzaSyDcexI82yfpNpFNL6f6P6RM6YQCTdhb6Ow";
   const GEMINI_API_ENDPOINT = "https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent";
   
-  // Scroll to bottom of chat
-  useEffect(() => {
-    if (messagesEndRef.current) {
-      messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
-    }
-  }, [messages]);
-
-  // === RANT MODE FUNCTIONS ===
   const handleRantSubmit = async () => {
     if (!rantText.trim()) return;
     
@@ -136,7 +172,6 @@ const Index = () => {
     });
   };
   
-  // === WELLBEING CHAT FUNCTIONS ===
   const selectMood = (selectedMood: Mood) => {
     setMood(selectedMood);
     
@@ -249,7 +284,6 @@ const Index = () => {
     }
   };
   
-  // === CONTENT ANALYSIS FUNCTIONS ===
   const analyzeContent = async () => {
     if (!content.trim()) {
       toast.error("Empty content", {
@@ -294,9 +328,7 @@ const Index = () => {
       const data = await response.json();
       
       try {
-        // Extract the JSON from the text response
         const textResponse = data.candidates[0].content.parts[0].text;
-        // Find the JSON object in the text
         const jsonMatch = textResponse.match(/\{[\s\S]*\}/);
         const analysisResult = jsonMatch ? JSON.parse(jsonMatch[0]) : null;
         
@@ -374,7 +406,6 @@ const Index = () => {
     });
   };
   
-  // === RENDER FUNCTIONS ===
   const renderRantMode = () => (
     <div className="w-full max-w-2xl mx-auto space-y-6 animate-fade-in">
       <div className="space-y-2 text-center md:text-left">
@@ -837,14 +868,13 @@ const Index = () => {
   };
   
   return (
-    <MainLayout>
+    <MainLayout onTabChange={handleTabChange}>
       <div className="min-h-screen">
-        {/* Hero Section */}
         <section className="relative pt-16 pb-24 overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-br from-reflectify-blue/5 via-reflectify-purple/5 to-reflectify-green/5 -z-10"></div>
+          <div className="absolute inset-0 bg-gradient-to-br from-reflectify-blue/5 via-reflectify-purple/5 to-reflectify-green/5 -z-10 transition-colors duration-500"></div>
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center space-y-6 max-w-3xl mx-auto">
-              <div className="inline-flex items-center justify-center p-1.5 bg-white/70 dark:bg-white/10 backdrop-blur-sm rounded-full shadow-sm animate-fade-in border border-reflectify-purple/10">
+              <div className="inline-flex items-center justify-center p-1.5 bg-white/70 dark:bg-white/10 backdrop-blur-sm rounded-full shadow-sm animate-fade-in border border-reflectify-purple/10 transition-all duration-500">
                 <span className="text-sm font-medium bg-gradient-to-r from-reflectify-blue via-reflectify-purple to-reflectify-green bg-clip-text text-transparent px-4 py-0.5">
                   Your AI Mental Wellbeing Companion
                 </span>
@@ -857,31 +887,31 @@ const Index = () => {
                 </span>
               </h1>
               
-              <p className="text-xl text-muted-foreground max-w-2xl mx-auto animate-fade-in">
+              <p className="text-xl text-muted-foreground max-w-2xl mx-auto animate-fade-in transition-colors duration-500">
                 Express your thoughts, reflect on your emotions, and maintain your mental wellbeing with an intelligent AI companion.
               </p>
               
               <div className="flex flex-wrap justify-center gap-3 pt-4 animate-fade-in">
                 <Button
-                  onClick={() => setActiveTab("rant")}
+                  onClick={() => handleTabChange("rant")}
                   variant="outline"
-                  className="rounded-full border-reflectify-blue/30 text-reflectify-blue hover:bg-reflectify-blue/10 px-5"
+                  className="rounded-full border-reflectify-blue/30 text-reflectify-blue hover:bg-reflectify-blue/10 px-5 transition-all duration-300"
                 >
                   <MessageCircle className="h-4 w-4 mr-2" />
                   Express Yourself
                 </Button>
                 <Button
-                  onClick={() => setActiveTab("chat")}
+                  onClick={() => handleTabChange("chat")}
                   variant="outline"
-                  className="rounded-full border-reflectify-purple/30 text-reflectify-purple hover:bg-reflectify-purple/10 px-5"
+                  className="rounded-full border-reflectify-purple/30 text-reflectify-purple hover:bg-reflectify-purple/10 px-5 transition-all duration-300"
                 >
                   <HeartPulse className="h-4 w-4 mr-2" />
                   Chat Support
                 </Button>
                 <Button
-                  onClick={() => setActiveTab("content")}
+                  onClick={() => handleTabChange("content")}
                   variant="outline"
-                  className="rounded-full border-reflectify-peach/30 text-reflectify-peach hover:bg-reflectify-peach/10 px-5"
+                  className="rounded-full border-reflectify-peach/30 text-reflectify-peach hover:bg-reflectify-peach/10 px-5 transition-all duration-300"
                 >
                   <Shield className="h-4 w-4 mr-2" />
                   Analyze Content
@@ -895,17 +925,17 @@ const Index = () => {
           </div>
         </section>
         
-        {/* Features Section */}
         <section className="py-16 px-4 sm:px-6 lg:px-8">
           <div className="max-w-5xl mx-auto">
-            <div className="bg-white dark:bg-card rounded-3xl p-2 shadow-xl border border-border/40 mb-10 overflow-hidden">
+            <div className="bg-white dark:bg-card rounded-3xl p-2 shadow-xl border border-border/40 mb-10 overflow-hidden transition-colors duration-500">
               <div className="grid grid-cols-2 md:grid-cols-4 gap-1">
                 <button
-                  onClick={() => setActiveTab("rant")}
+                  onClick={() => handleTabChange("rant")}
                   className={cn(
                     "tab-button",
                     activeTab === "rant" ? "active after:bg-reflectify-blue" : ""
                   )}
+                  ref={rantSectionRef}
                 >
                   <MessageCircle className={cn(
                     "tab-icon",
@@ -920,11 +950,12 @@ const Index = () => {
                 </button>
                 
                 <button
-                  onClick={() => setActiveTab("chat")}
+                  onClick={() => handleTabChange("chat")}
                   className={cn(
                     "tab-button",
                     activeTab === "chat" ? "active after:bg-reflectify-purple" : ""
                   )}
+                  ref={chatSectionRef}
                 >
                   <HeartPulse className={cn(
                     "tab-icon",
@@ -939,11 +970,12 @@ const Index = () => {
                 </button>
                 
                 <button
-                  onClick={() => setActiveTab("journal")}
+                  onClick={() => handleTabChange("journal")}
                   className={cn(
                     "tab-button",
                     activeTab === "journal" ? "active after:bg-reflectify-green" : ""
                   )}
+                  ref={journalSectionRef}
                 >
                   <BookText className={cn(
                     "tab-icon",
@@ -958,11 +990,12 @@ const Index = () => {
                 </button>
                 
                 <button
-                  onClick={() => setActiveTab("content")}
+                  onClick={() => handleTabChange("content")}
                   className={cn(
                     "tab-button",
                     activeTab === "content" ? "active after:bg-reflectify-peach" : ""
                   )}
+                  ref={analyzeSectionRef}
                 >
                   <Shield className={cn(
                     "tab-icon",
@@ -978,7 +1011,7 @@ const Index = () => {
               </div>
             </div>
             
-            <div className="min-h-[70vh] pb-20 transition-all duration-300">
+            <div className="min-h-[70vh] pb-20 transition-all duration-500">
               {renderFeatureContent()}
             </div>
           </div>
