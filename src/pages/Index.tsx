@@ -121,7 +121,7 @@ const Index = () => {
   }>(null);
   
   const GEMINI_API_KEY = "AIzaSyDcexI82yfpNpFNL6f6P6RM6YQCTdhb6Ow";
-  const GEMINI_API_ENDPOINT = "https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent";
+  const GEMINI_API_ENDPOINT = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent";
   
   const handleRantSubmit = async () => {
     if (!rantText.trim()) return;
@@ -136,7 +136,6 @@ const Index = () => {
         },
         body: JSON.stringify({
           contents: [{
-            role: "user",
             parts: [{
               text: `The user is sharing their feelings with you. They said: "${rantText}"
               
@@ -228,7 +227,6 @@ const Index = () => {
         },
         body: JSON.stringify({
           contents: [{
-            role: "user",
             parts: [{
               text: `You are an AI wellbeing assistant having a conversation with a user who is currently feeling ${mood}.
               
@@ -312,7 +310,6 @@ const Index = () => {
         },
         body: JSON.stringify({
           contents: [{
-            role: "user",
             parts: [{
               text: `Analyze the following social media post for toxicity, harmful content, and appropriateness. 
               Give scores from 0-1 for: toxicity, insult, profanity, identity_attack, and threat.
